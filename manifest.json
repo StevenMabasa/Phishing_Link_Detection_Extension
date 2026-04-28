@@ -1,0 +1,32 @@
+{
+  "name": "Auto Phishing Detection",
+  "description": "Automatically detects potential phishing websites",
+  "version": "1.0",
+  "manifest_version": 3,
+  "permissions": ["tabs", "activeTab", "storage"],
+  "host_permissions": [
+    "https://generativelanguage.googleapis.com/*",
+    "http://*/*",
+    "https://*/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["http://*/*", "https://*/*"],
+      "js": ["content.js"],
+      "run_at": "document_end"
+    }
+  ],
+  "action": {
+    "default_popup": "hello.html",
+    "default_icon": "hello_extensions.png"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["react-dashboard.html", "dashboard-script.js"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}

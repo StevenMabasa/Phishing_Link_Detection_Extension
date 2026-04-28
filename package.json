@@ -1,0 +1,17 @@
+{
+  "name": "auto-phishing-detection-extension",
+  "version": "1.0.0",
+  "description": "Chrome extension that uses the Gemini API to classify phishing risk.",
+  "main": "popup.js",
+  "scripts": {
+    "check": "node --check gemini-client.js && node --check background.js && node --check content.js && node --check popup.js && node --check dashboard-script.js"
+  },
+  "keywords": [
+    "chrome-extension",
+    "phishing",
+    "gemini"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {}
+}
