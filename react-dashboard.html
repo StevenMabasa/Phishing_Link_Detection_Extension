@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Phishing Detection Dashboard</title>
+  <style>
+    :root {
+      --bg: #f6f7fb;
+      --surface: #ffffff;
+      --surface-soft: #f8fafc;
+      --border: #d9e0ea;
+      --border-strong: #b8c2d1;
+      --text: #111827;
+      --muted: #667085;
+      --blue: #2563eb;
+      --green: #16803c;
+      --orange: #c76a12;
+      --red: #c62828;
+      --violet: #6d4aff;
+      --shadow: 0 14px 34px rgba(18, 38, 63, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      min-height: 100%;
+      background: var(--bg);
+    }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--text);
+      background:
+        linear-gradient(180deg, rgba(37, 99, 235, 0.08), rgba(37, 99, 235, 0) 260px),
+        var(--bg);
+      letter-spacing: 0;
+    }
+
+    button {
+      font: inherit;
+    }
+
+    .dashboard-shell {
+      width: min(1440px, 100%);
+      margin: 0 auto;
+      padding: 28px;
+    }
+
+    .dashboard-topbar {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 20px;
+      margin-bottom: 22px;
+    }
+
+    .dashboard-title h1 {
+      margin: 0 0 6px;
+      color: var(--text);
+      font-size: 30px;
+      line-height: 1.15;
+      font-weight: 760;
+    }
+
+    .dashboard-title p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .dashboard-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      min-height: 38px;
+      border: 1px solid transparent;
+      border-radius: 7px;
+      padding: 9px 13px;
+      cursor: pointer;
+      color: #ffffff;
+      background: var(--blue);
+      font-size: 13px;
+      font-weight: 700;
+      transition: background 160ms ease, border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+    }
+
+    .btn:hover {
+      background: #1d4ed8;
+      box-shadow: 0 8px 20px rgba(37, 99, 235, 0.22);
+      transform: translateY(-1px);
+    }
+
+    .btn:focus-visible {
+      outline: 3px solid rgba(37, 99, 235, 0.28);
+      outline-offset: 2px;
+    }
+
+    .btn.secondary {
+      color: var(--text);
+      background: var(--surface);
+      border-color: var(--border);
+    }
+
+    .btn.secondary:hover {
+      background: #f1f5f9;
+      border-color: var(--border-strong);
+      box-shadow: 0 8px 20px rgba(18, 38, 63, 0.08);
+    }
+
+    .btn.danger {
+      background: var(--red);
+    }
+
+    .btn.danger:hover {
+      background: #a91f1f;
+      box-shadow: 0 8px 20px rgba(198, 40, 40, 0.22);
+    }
+
+    .status-strip {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .metric-card {
+      min-height: 118px;
+      padding: 18px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--surface);
+      box-shadow: var(--shadow);
+    }
+
+    .metric-card.primary {
+      border-color: rgba(37, 99, 235, 0.24);
+      background: linear-gradient(180deg, #ffffff, #f7fbff);
+    }
+
+    .metric-label {
+      margin-bottom: 10px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 760;
+      text-transform: uppercase;
+    }
+
+    .metric-value {
+      color: var(--text);
+      font-size: 34px;
+      line-height: 1;
+      font-weight: 780;
+    }
+
+    .metric-note {
+      margin-top: 9px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .metric-value.safe {
+      color: var(--green);
+    }
+
+    .metric-value.suspicious {
+      color: var(--orange);
+    }
+
+    .metric-value.phishing {
+      color: var(--red);
+    }
+
+    .content-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.7fr) minmax(320px, 0.9fr);
+      gap: 18px;
+      align-items: start;
+    }
+
+    .section {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--surface);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .section + .section {
+      margin-top: 18px;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 17px 18px;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface-soft);
+    }
+
+    .section-title {
+      margin: 0;
+      color: var(--text);
+      font-size: 16px;
+      font-weight: 760;
+    }
+
+    .section-subtitle {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 650;
+    }
+
+    .section-body {
+      padding: 18px;
+    }
+
+    .risk-overview {
+      display: grid;
+      grid-template-columns: 170px minmax(0, 1fr);
+      gap: 20px;
+      align-items: center;
+    }
+
+    .risk-gauge {
+      width: 150px;
+      height: 150px;
+      border-radius: 999px;
+      display: grid;
+      place-items: center;
+      background:
+        radial-gradient(circle at center, #ffffff 0 55%, transparent 56%),
+        conic-gradient(var(--risk-color) calc(var(--risk-score) * 1%), #e8edf4 0);
+      border: 1px solid #e2e8f0;
+    }
+
+    .risk-gauge-inner {
+      text-align: center;
+    }
+
+    .risk-score {
+      display: block;
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--risk-color);
+    }
+
+    .risk-label {
+      display: block;
+      margin-top: 2px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .verdict-mix {
+      display: grid;
+      gap: 10px;
+    }
+
+    .mix-row {
+      display: grid;
+      grid-template-columns: 92px minmax(0, 1fr) 44px;
+      gap: 10px;
+      align-items: center;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .mix-track {
+      height: 9px;
+      border-radius: 999px;
+      background: #e8edf4;
+      overflow: hidden;
+    }
+
+    .mix-fill {
+      width: var(--width);
+      height: 100%;
+      border-radius: inherit;
+      background: var(--color);
+    }
+
+    .trend-chart {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(96px, 1fr));
+      gap: 12px;
+      min-height: 230px;
+      align-items: end;
+      padding-top: 10px;
+    }
+
+    .trend-item {
+      display: grid;
+      gap: 9px;
+      justify-items: center;
+      min-width: 0;
+    }
+
+    .trend-bar-wrap {
+      height: 170px;
+      width: 100%;
+      display: flex;
+      align-items: end;
+      justify-content: center;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .trend-bar {
+      width: min(58px, 70%);
+      min-height: 18px;
+      border-radius: 6px 6px 0 0;
+      background: var(--bar-color);
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding-top: 6px;
+      color: #ffffff;
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    .trend-meta {
+      text-align: center;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.35;
+    }
+
+    .analysis-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .analysis-item {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 148px;
+      gap: 16px;
+      align-items: center;
+      padding: 14px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: #ffffff;
+    }
+
+    .site-url {
+      margin-bottom: 7px;
+      color: var(--text);
+      font-size: 14px;
+      font-weight: 760;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .site-summary {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.45;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .site-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 9px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 24px;
+      border-radius: 999px;
+      padding: 3px 8px;
+      background: #eef2f7;
+      color: #475467;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .pill.safe {
+      color: var(--green);
+      background: #eaf7ee;
+    }
+
+    .pill.suspicious {
+      color: var(--orange);
+      background: #fff3e2;
+    }
+
+    .pill.phishing {
+      color: var(--red);
+      background: #fdecec;
+    }
+
+    .risk-stack {
+      display: grid;
+      justify-items: end;
+      gap: 7px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .risk-number {
+      color: var(--risk-color);
+      font-size: 24px;
+      line-height: 1;
+      font-weight: 820;
+    }
+
+    .category-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .category-row {
+      display: grid;
+      gap: 8px;
+    }
+
+    .category-meta {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .category-track {
+      height: 10px;
+      border-radius: 999px;
+      background: #e8edf4;
+      overflow: hidden;
+    }
+
+    .category-fill {
+      width: var(--width);
+      height: 100%;
+      border-radius: inherit;
+      background: var(--color);
+    }
+
+    .empty-state {
+      padding: 38px 18px;
+      border: 1px dashed var(--border-strong);
+      border-radius: 8px;
+      color: var(--muted);
+      background: #fbfcfe;
+      text-align: center;
+      font-size: 14px;
+      font-weight: 650;
+    }
+
+    .toast {
+      position: fixed;
+      right: 24px;
+      bottom: 24px;
+      max-width: 360px;
+      padding: 12px 14px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--surface);
+      color: var(--text);
+      box-shadow: var(--shadow);
+      font-size: 13px;
+      font-weight: 700;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(8px);
+      transition: opacity 180ms ease, transform 180ms ease;
+      z-index: 10;
+    }
+
+    .toast.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .toast.error {
+      border-color: #f4b4b4;
+      color: var(--red);
+    }
+
+    .loading {
+      display: grid;
+      min-height: 100vh;
+      place-items: center;
+      color: var(--muted);
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    @media (max-width: 980px) {
+      .dashboard-topbar,
+      .content-grid,
+      .risk-overview {
+        grid-template-columns: 1fr;
+      }
+
+      .dashboard-topbar {
+        display: grid;
+      }
+
+      .dashboard-actions {
+        justify-content: flex-start;
+      }
+
+      .status-strip {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 680px) {
+      .dashboard-shell {
+        padding: 16px;
+      }
+
+      .status-strip {
+        grid-template-columns: 1fr;
+      }
+
+      .analysis-item {
+        grid-template-columns: 1fr;
+      }
+
+      .risk-stack {
+        justify-items: start;
+      }
+
+      .dashboard-actions {
+        display: grid;
+        grid-template-columns: 1fr;
+      }
+
+      .btn {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="root">
+    <div class="loading">Loading Dashboard...</div>
+  </div>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script src="dashboard-script.js"></script>
+</body>
+</html>

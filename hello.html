@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Auto Phishing Detection</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        width: 420px;
+        margin: 0;
+        padding: 18px;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        color: #172033;
+        background: #f8fafc;
+      }
+
+      h1 {
+        margin: 0 0 12px;
+        font-size: 19px;
+        color: #0f172a;
+      }
+
+      label {
+        display: block;
+        margin-bottom: 6px;
+        font-size: 12px;
+        font-weight: 700;
+        color: #475569;
+      }
+
+      input {
+        width: 100%;
+        border: 1px solid #cbd5e1;
+        border-radius: 6px;
+        padding: 10px;
+        font-size: 13px;
+        background: #ffffff;
+        color: #0f172a;
+      }
+
+      input:focus {
+        outline: 2px solid #bfdbfe;
+        border-color: #2563eb;
+      }
+
+      .panel {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 14px;
+        margin-bottom: 12px;
+      }
+
+      .status {
+        background: #eff6ff;
+        border: 1px solid #bfdbfe;
+        border-radius: 6px;
+        padding: 10px;
+        margin-bottom: 12px;
+        color: #1d4ed8;
+        font-size: 13px;
+      }
+
+      .key-status {
+        margin-top: 8px;
+        color: #64748b;
+        font-size: 12px;
+      }
+
+      .key-status.saved {
+        color: #15803d;
+      }
+
+      .field {
+        margin-bottom: 12px;
+      }
+
+      .button-row {
+        display: flex;
+        gap: 8px;
+        margin-top: 10px;
+      }
+
+      button {
+        min-height: 38px;
+        border: none;
+        border-radius: 6px;
+        padding: 9px 12px;
+        cursor: pointer;
+        font-size: 13px;
+        font-weight: 700;
+        color: #ffffff;
+        background: #2563eb;
+      }
+
+      button:hover {
+        background: #1d4ed8;
+      }
+
+      button:disabled {
+        background: #94a3b8;
+        cursor: not-allowed;
+      }
+
+      .secondary {
+        background: #475569;
+      }
+
+      .secondary:hover {
+        background: #334155;
+      }
+
+      .danger {
+        background: #dc2626;
+      }
+
+      .danger:hover {
+        background: #b91c1c;
+      }
+
+      .full-width {
+        width: 100%;
+      }
+
+      #output {
+        min-height: 92px;
+        max-height: 230px;
+        overflow-y: auto;
+        white-space: pre-wrap;
+        margin: 12px 0 0;
+        padding: 12px;
+        border: 1px solid #e2e8f0;
+        border-radius: 6px;
+        background: #ffffff;
+        color: #334155;
+        font-size: 12px;
+      }
+
+      .loading {
+        color: #2563eb;
+      }
+
+      .success {
+        color: #15803d;
+      }
+
+      .warning {
+        color: #b45309;
+      }
+
+      .error {
+        color: #dc2626;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Auto Phishing Detection</h1>
+
+    <div class="status">
+      Automatic analysis uses Gemini and saves your API key only in Chrome local storage.
+    </div>
+
+    <div class="panel">
+      <div class="field">
+        <label for="geminiApiKey">Gemini API Key</label>
+        <input id="geminiApiKey" type="password" autocomplete="off" placeholder="Paste Gemini API key" />
+        <div id="keyStatus" class="key-status">Checking saved key...</div>
+      </div>
+
+      <div class="field">
+        <label for="geminiModel">Gemini Model</label>
+        <input id="geminiModel" type="text" value="gemini-2.5-flash" />
+      </div>
+
+      <div class="button-row">
+        <button id="saveKeyBtn" type="button">Save Key</button>
+        <button id="testKeyBtn" type="button" class="secondary">Test</button>
+        <button id="clearKeyBtn" type="button" class="danger">Clear</button>
+      </div>
+    </div>
+
+    <button id="getUrlBtn" type="button" class="full-width">Analyze Current Page</button>
+    <div class="button-row">
+      <button id="dashboardBtn" type="button" class="secondary full-width">Open Dashboard</button>
+    </div>
+
+    <pre id="output"></pre>
+
+    <script src="gemini-client.js"></script>
+    <script src="popup.js"></script>
+  </body>
+</html>
